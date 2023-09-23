@@ -1,4 +1,4 @@
-import ITodos from "../interface/todos"
+import ITodos from "../interface/Todos"
 
 const Todos: ITodos[] = [
     {

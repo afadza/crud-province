@@ -1,10 +1,13 @@
-import Express, { Request, Response } from "express";
+import Express from "express";
+import dotenv from "dotenv"
 import router from "./src/routes";
 
 async function start(): Promise<void> {
   try {
+    dotenv.config()
+    
     const app = Express();
-    const PORT: number = 5000;
+    const PORT = process.env.APP_PORT
 
     app.use(Express.json())
     app.use('/api/v1', router)

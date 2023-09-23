@@ -1,71 +1,79 @@
-import { Request, Response } from "express"
-import ITodos from "../interface/todos"
-import Todos from "../mocks/Todos"
+import { Request, Response } from "express";
+import Todo from "../databases/models/province";
+import ITodos from "../interface/Todos";
+import Todos from "../mocks/Todos";
 
 export default new class TodoService {
-    private todos: ITodos[]
+  private todos: ITodos[];
 
-    constructor() {
-        this.todos = [...Todos]
+  constructor() {
+    this.todos = [...Todos];
+  }
+
+  async find(req: Request, res: Response): Promise<Response> {
+    try {
+      const todos = await Todo.findAll();
+
+      return res.status(200).json(todos);
+    } catch (error) {
+      return res.status(500).json({ error: "Internal server error" });
     }
+  }
 
-    find(req: Request, res: Response) : Response {
-        try {
-            return res.status(200).json(this.todos)
-        } catch(error) {
-            return res.status(500).json({error: 'Internal server error'})
-        }
+  async findOne(req: Request, res: Response): Promise<Response> {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id) || id <= 0)
+        return res.status(400).json({ Error: "Invalid id" });
+
+      const todo = await Todo.findByPk(id);
+      if (!todo) return res.status(404).json({ Error: "ID Not found " });
+
+      return res.status(200).json(todo);
+    } catch (error) {
+      return res.status(500).json({ error: "Something error while findOne" });
     }
+  }
 
-    findOne(req: Request, res: Response) : Response {
-        try {
-            const id = parseInt(req.params.id);
-            const data = Todos.find((data) => data.id === id);
+  async create(req: Request, res: Response): Promise<Response> {
+    try {
+      const { name } = req.body;
+      const todo = await Todo.create({ name });
 
-            return res.status(200).json(data);
-        } catch(error) {
-            return res.status(500).json({error: 'Something error while findOne'})
-        }
+      return res.status(200).json(todo);
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ error: "Something wrong while create todo" });
     }
+  }
 
-    create(req: Request, res: Response) : Response {
-        try {
-            const data: ITodos = req.body
-            Todos.push(data)
+  async update(req: Request, res: Response): Promise<Response> {
+    try {
+      const id: number = parseInt(req.params.id);
+      const todoToUpdate = await Todo.findByPk(id);
+      if (!todoToUpdate)
+        return res.status(404).json({ Error: "Todo not found" });
 
-            return res.status(200).json({ data: Todos });
-        } catch(error) {
-            return res.status(500).json({error: 'Something wrong while create todo'})
-        }
+      const updateTodo = req.body;
+      const todo = await todoToUpdate.update(updateTodo);
+
+      return res.status(200).json(todo);
+    } catch (error) {
+      return res.status(500).json({ massage: "Something error while update todo" });
     }
+  }
 
-    update(req: Request, res: Response) : Response {
-        try {
-            const id: number = parseInt(req.params.id)
-            const updateTodo: ITodos = req.body
+  async delete(req: Request, res: Response): Promise<Response> {
+    try {
+      const { id } = req.params;
+      const todoToDelete = await Todo.findByPk(id)
+      if(!todoToDelete) return res.status(404).json({ Error: "Todo not found" })
 
-            const index: number = this.todos.findIndex(todo => todo.id === id)
-
-            if(index !== -1) {
-                this.todos[index] = {...this.todos[index], ...updateTodo}
-                const data = this.todos[index]
-                return res.status(200).json(data)
-            }
-
-            return res.status(404).json({error: 'ID todo not found'})
-        } catch(error) {
-            return res.status(500).json({error: 'Something error while update todo'})
-        }
-    }
-
-    delete(req: Request, res: Response) : Response {
-        try {
-            const { id } = req.params
-            const data: ITodos[] = Todos.filter(todo => todo.id !== parseInt(id))
-
-            return res.status(200).json(data)
-        } catch(error) {
-            return res.status(500).json({error: 'Something wrong while delete todo'})
-        }
-    }
+      const todo = await todoToDelete.destroy()
+      return res.status(200).json(todo)
+    } catch (error) {
+      return res.status(500).json({ error: "Something wrong while delete todo" });
+    }   
+  }
 }
