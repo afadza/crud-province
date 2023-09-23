@@ -1,20 +1,20 @@
 import { Request, Response } from "express";
-import Todo from "../databases/models/province";
-import ITodos from "../interface/Todos";
-import Todos from "../mocks/Todos";
+import Province from "../databases/models/province";
+import IProvinces from "../interface/Provinces";
+import Provinces from "../mocks/Provinces";
 
-export default new class TodoService {
-  private todos: ITodos[];
+export default new class ProvinceServices {
+  private province: IProvinces[];
 
   constructor() {
-    this.todos = [...Todos];
+    this.province = [...Provinces];
   }
 
   async find(req: Request, res: Response): Promise<Response> {
     try {
-      const todos = await Todo.findAll();
+      const provinces = await Province.findAll();
 
-      return res.status(200).json(todos);
+      return res.status(200).json(provinces);
     } catch (error) {
       return res.status(500).json({ error: "Internal server error" });
     }
@@ -26,10 +26,10 @@ export default new class TodoService {
       if (isNaN(id) || id <= 0)
         return res.status(400).json({ Error: "Invalid id" });
 
-      const todo = await Todo.findByPk(id);
-      if (!todo) return res.status(404).json({ Error: "ID Not found " });
+      const province = await Province.findByPk(id);
+      if (!province) return res.status(404).json({ Error: "ID Not found " });
 
-      return res.status(200).json(todo);
+      return res.status(200).json(province);
     } catch (error) {
       return res.status(500).json({ error: "Something error while findOne" });
     }
@@ -38,9 +38,9 @@ export default new class TodoService {
   async create(req: Request, res: Response): Promise<Response> {
     try {
       const { name } = req.body;
-      const todo = await Todo.create({ name });
+      const province = await Province.create({ name });
 
-      return res.status(200).json(todo);
+      return res.status(200).json(province);
     } catch (error) {
       return res
         .status(500)
@@ -51,29 +51,34 @@ export default new class TodoService {
   async update(req: Request, res: Response): Promise<Response> {
     try {
       const id: number = parseInt(req.params.id);
-      const todoToUpdate = await Todo.findByPk(id);
-      if (!todoToUpdate)
+      const provinceToUpdate = await Province.findByPk(id);
+      if (!provinceToUpdate)
         return res.status(404).json({ Error: "Todo not found" });
 
       const updateTodo = req.body;
-      const todo = await todoToUpdate.update(updateTodo);
+      const todo = await provinceToUpdate.update(updateTodo);
 
       return res.status(200).json(todo);
     } catch (error) {
-      return res.status(500).json({ massage: "Something error while update todo" });
+      return res
+        .status(500)
+        .json({ massage: "Something error while update todo" });
     }
   }
 
   async delete(req: Request, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
-      const todoToDelete = await Todo.findByPk(id)
-      if(!todoToDelete) return res.status(404).json({ Error: "Todo not found" })
+      const provinceToDelete = await Province.findByPk(id);
+      if (!provinceToDelete)
+        return res.status(404).json({ Error: "Todo not found" });
 
-      const todo = await todoToDelete.destroy()
-      return res.status(200).json(todo)
+      const todo = await provinceToDelete.destroy();
+      return res.status(200).json(todo);
     } catch (error) {
-      return res.status(500).json({ error: "Something wrong while delete todo" });
-    }   
+      return res
+        .status(500)
+        .json({ error: "Something wrong while delete todo" });
+    }
   }
-}
+}();

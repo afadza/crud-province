@@ -1,17 +1,17 @@
 import { DataTypes, Model, Optional  } from "sequelize";
 import sequelizeConnection from "../../config/connection";
 
-interface TodoAttributes {
+interface ProvinceAttributes {
   id?: number
   name?: string | null
   createdAt?: Date
   updatedAt?: Date
 }
 
-export interface TodoInput extends Optional<TodoAttributes, 'id'>{ }
-export interface TodoOuput extends Required<TodoAttributes>{ }
+export interface ProvinceInput extends Optional<ProvinceAttributes, 'id'>{ }
+export interface ProvinceOuput extends Required<ProvinceAttributes>{ }
 
-export default class Todo extends Model<TodoAttributes, TodoInput> implements TodoAttributes {
+export default class Province extends Model<ProvinceAttributes, ProvinceInput> implements ProvinceAttributes {
   public id!: number
   public name!: string
 
@@ -19,7 +19,7 @@ export default class Todo extends Model<TodoAttributes, TodoInput> implements To
   public readonly updatedAt!: Date
 }
 
-Todo.init({
+Province.init({
   id: {
     allowNull: false,
     autoIncrement: true,
